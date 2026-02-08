@@ -1,0 +1,2 @@
+pendingAmount -= publisherShare;
+balance += publisherShare;

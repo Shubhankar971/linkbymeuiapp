@@ -1,0 +1,4 @@
+● Payment Done
+● In Progress (Publisher)
+● Submitted (Live URL)
+● Approved / Revision

@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PUBLISHER
+  ADVERTISER
+  ADMIN
+}
+
+enum WebsiteStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum VerificationMethod {
+  META
+  FILE
+  GSC
+  GA
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REVISION
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String?
+  email     String   @unique
+  role      Role
+  status    Boolean  @default(true)
+  websites  Website[]
+  orders    Order[]
+  wallet    Wallet?
+  createdAt DateTime @default(now())
+}
+
+model Website {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id])
+
+  domain              String
+  isHidden            Boolean  @default(false)
+  description         String
+  category            String
+  keywords            String
+  country             String
+  language            String
+
+  verificationMethod  VerificationMethod
+  verificationToken   String
+  verified            Boolean  @default(false)
+
+  status              WebsiteStatus @default(DRAFT)
+  adminNote           String?
+
+  pricing             WebsitePricing?
+  createdAt           DateTime @default(now())
+}
+
+model WebsitePricing {
+  id               String @id @default(uuid())
+  websiteId        String @unique
+  website          Website @relation(fields: [websiteId], references: [id])
+
+  articlePrice     Float
+  copywritingPrice Float?
+  homepagePrice    Float?
+  linkType         String
+  maxLinks         Int
+  discount         Float?
+  blockedNiches    String?
+  extraCharge      Float?
+}
+
+model Order {
+  id            String @id @default(uuid())
+  advertiserId  String
+  advertiser    User   @relation(fields: [advertiserId], references: [id])
+
+  totalAmount   Float
+  status        OrderStatus
+  paymentIntent String?
+  createdAt     DateTime @default(now())
+
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id           String @id @default(uuid())
+  orderId      String
+  order        Order  @relation(fields: [orderId], references: [id])
+
+  websiteId    String
+  website      Website @relation(fields: [websiteId], references: [id])
+
+  articleTopic String
+  anchorText   String
+  targetUrl    String
+  instructions String
+  status       OrderStatus
+}
+
+model Wallet {
+  id            String @id @default(uuid())
+  userId        String @unique
+  user          User   @relation(fields: [userId], references: [id])
+  balance       Float  @default(0)
+  pendingAmount Float  @default(0)
+}

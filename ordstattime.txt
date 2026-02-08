@@ -1,0 +1,4 @@
+Advertiser → PENDING
+Publisher  → IN_PROGRESS
+Publisher  → SUBMITTED (adds live URL)
+Advertiser → APPROVED / REVISION
